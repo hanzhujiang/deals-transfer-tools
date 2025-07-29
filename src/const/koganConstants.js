@@ -1,4 +1,12 @@
-export const kogan_couriers_map = {}
+export const kogan_couriers_map = {
+  R:'R',
+  ALLIED:'R',
+  LARGE:"DFE",
+  DFE:"DFE",
+  "Direct Freight Express":"DFE",
+  HX:"HX",
+  HUNTER:"HX",
+}
 
 
 export const kogan_weight_map = {

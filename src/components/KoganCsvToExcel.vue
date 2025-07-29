@@ -1,86 +1,122 @@
 <template>
     <div>
-        <h2>Kogan CSV 转 Excel</h2>
-        <input type="file" accept=".csv" @change="handleFileUpload" />
-        <button @click="exportToExcel" :disabled="!processedData.length">导出 Excel</button>
+        <h2>生成发货 CSV</h2>
+
+        <div>
+            <label>上传 sample CSV：</label>
+            <input type="file" accept=".csv" @change="handleSampleCsv" />
+        </div>
+
+        <div>
+            <label>输入 Excel 的 Sheet 名：</label>
+            <input v-model="sheetName" placeholder="例如：发货记录表" />
+        </div>
+
+        <div>
+            <label>上传 Excel 文件（含订单号、发货单号、CARRIER）：</label>
+            <input type="file" accept=".xlsx" @change="handleExcelUpload" />
+        </div>
+
+        <button @click="generateCsv" :disabled="!sampleData.length || !excelMap.size">
+            生成并导出 CSV
+        </button>
     </div>
 </template>
 
 <script setup>
-import * as XLSX from "xlsx"
-import { ref } from "vue"
-import { shippingRules,kogan_weight_map } from "../const/koganConstants";
+import { ref } from 'vue'
+import * as XLSX from 'xlsx'
+import Papa from 'papaparse'
+import { saveAs } from 'file-saver'
 
-const processedData = ref([])
+const sheetName = ref('')
+const sampleData = ref([])
+const excelMap = ref(new Map())
 
-function handleFileUpload(event) {
-    const file = event.target.files[0]
+function handleSampleCsv(e) {
+    const file = e.target.files[0]
+    if (!file) return
+
+    Papa.parse(file, {
+        header: true,
+        skipEmptyLines: true,
+        complete(results) {
+            sampleData.value = results.data
+        }
+    })
+}
+
+function handleExcelUpload(e) {
+    const file = e.target.files[0]
     if (!file) return
 
     const reader = new FileReader()
-    reader.onload = (e) => {
-        const csv = e.target.result
-        const workbook = XLSX.read(csv, { type: "binary" })
-        const sheet = workbook.Sheets[workbook.SheetNames[0]]
-        const jsonData = XLSX.utils.sheet_to_json(sheet)
+    reader.onload = () => {
+        const wb = XLSX.read(reader.result, { type: 'binary' })
+        const sheet = wb.Sheets[sheetName.value.trim()]
+        if (!sheet) {
+            alert(`未找到 Sheet: ${sheetName.value}`)
+            return
+        }
 
-        processedData.value = jsonData.map(row => {
-            const sku = (row.ProductCode || "").replace("AXS-", "")
-            const quantity = Number(row.Quantity || 0)
-            const itemPrice = Number(row.ItemPrice || 0)
+        const rawRows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' })
+        const headers = rawRows[2]
+        const rows = rawRows.slice(3)
 
-            return {
-                销售平台: "Kogan",
-                日期: row.OrderDate || "",
-                订单号: row.OrderID || "",
-                SKU: sku,
-                名称: "",
-                数量: quantity,
-                MyDeal价格: "",
-                MyDeal运费: "",
-                总价格: itemPrice * quantity,
-                总运费: calculateShipping(row.ProductCode, row.DeliveryPostCode),
-                地址: [row.DeliveryAddress1, row.DeliveryAddress2, row.DeliverySuburb, row.DeliveryState, row.DeliveryPostCode]
-                    .filter(Boolean)
-                    .join(" "),
-                联系人: row.DeliveryName || "",
-                电话: row.DeliveryPhone || "",
+        const structured = rows.map(row => {
+            const obj = {}
+            headers.forEach((key, i) => {
+                obj[key] = row[i] ?? ''
+            })
+            return obj
+        })
+
+        excelMap.value.clear()
+        structured.forEach(row => {
+            const orderId = row['订单号']?.toString().trim()
+            if (orderId) {
+                excelMap.value.set(orderId, {
+                    trackingCode: row['发货单号'] || '',
+                    carrier: row['CARRIER'] || ''
+                })
             }
         })
     }
     reader.readAsBinaryString(file)
 }
 
-function calculateShipping(productCode, postcode) {
-    const postcodeRanges = []
-    for (const rule of shippingRules) {
-        const { base, rate, ranges } = rule
-        ranges.split(",").forEach(range => {
-            const trimmed = range.trim()
-            if (trimmed.includes("-")) {
-                const [start, end] = trimmed.split("-").map(Number)
-                postcodeRanges.push({ start, end, base, rate })
-            } else {
-                const val = Number(trimmed)
-                postcodeRanges.push({ start: val, end: val, base, rate })
-            }
-        })
-    }
-    const weight = kogan_weight_map[productCode] || 0
-    const post = Number(postcode)
+function generateCsv() {
+    const today = new Date()
+    const dispatchDate = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`
 
-    for (const entry of postcodeRanges) {
-        if (post >= entry.start && post <= entry.end) {
-            return +(entry.base + weight * entry.rate).toFixed(2)
+    const output = sampleData.value.map(row => {
+        const orderId = row['OrderID']?.toString().trim()
+        const productCode = row['ProductCode'] || ''
+        const match = excelMap.value.get(orderId)
+
+        return {
+            CONNOTE: match?.trackingCode || '',
+            ITEM: productCode.replace(/^AXS-/, ''),
+            SERIAL_NUMBER: '',
+            DISPATCH_DATE: dispatchDate,
+            ORDER_ID: orderId,
+            QUANTITY: row['Quantity'] || '',
+            CARRIER: match?.carrier || '',
+            WAREHOUSE: row['OriginWarehouse'] || ''
         }
-    }
-    return 0
-}
+    })
 
-function exportToExcel() {
-    const worksheet = XLSX.utils.json_to_sheet(processedData.value)
-    const workbook = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(workbook, worksheet, "KoganOrders")
-    XLSX.writeFile(workbook, "kogan_orders.xlsx")
+    const csv = Papa.unparse(output)
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    saveAs(blob, 'manifest_output.csv')
 }
 </script>
+
+<style scoped>
+input {
+    margin: 6px 0;
+}
+button {
+    margin-top: 12px;
+}
+</style>

@@ -6,6 +6,11 @@
             <label>上传原始CSV：</label>
             <input type="file" accept=".csv" @change="handleCsvUpload" />
         </div>
+        <label>
+            日控表的 Sheet 名称：
+            <input v-model="markingSheetName" placeholder="" />
+        </label>
+        <br /><br />
         <div>
             <label>上传包含发货信息的Excel：</label>
             <input type="file" accept=".xlsx" @change="handleExcelUpload" />
@@ -24,6 +29,7 @@ import * as XLSX from 'xlsx'
 const csvData = ref([])
 const excelMap = ref(new Map())
 const headers = ref([])
+const markingSheetName = ref('物控日报表 (2025年7月)')
 import { mydeal_couriers_map } from "../const/myDealConstants";
 
 function handleCsvUpload(e) {
@@ -33,7 +39,17 @@ function handleCsvUpload(e) {
     const reader = new FileReader()
     reader.onload = () => {
         const workbook = XLSX.read(reader.result, { type: 'binary' })
-        const sheet = workbook.Sheets[workbook.SheetNames[0]]
+        const sheetName = markingSheetName.value.trim()
+        if (!sheetName) {
+            alert('请先填写 Sheet 名称')
+            return
+        }
+
+        const sheet = workbook.Sheets[sheetName]
+        if (!sheet) {
+            alert(`未找到名称为 "${sheetName}" 的 Sheet, 请检查拼写`)
+            return
+        }
         csvData.value = XLSX.utils.sheet_to_json(sheet, { defval: '' })
         headers.value = Object.keys(csvData.value[0] || {})
     }
@@ -74,7 +90,7 @@ function handleExcelUpload(e) {
             const trackingCode = row['发货单号'] || ''
             const raw_courier = row['物流公司'] || ''
             const courier = mydeal_couriers_map[raw_courier]
-            if (orderNo&&trackingCode) {
+            if (orderNo && trackingCode) {
                 console.log('orderNo', orderNo);
                 excelMap.value.set(orderNo, { trackingCode, courier })
             }
