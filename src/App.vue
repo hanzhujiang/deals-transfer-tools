@@ -1,10 +1,10 @@
 <script setup>
 import { ref } from 'vue'
 import MyDealCsvToExcel from './components/MyDealCsvToExcel.vue'
-import ExcelBackToCsv from './components/ExcelBackToCsv.vue'
+import MyDealExcelBackToCsv from './components/MyDealExcelBackToCsv.vue'
 import KoganCsvToExcel from './components/KoganCsvToExcel.vue'
 import KoganExcelBackToCsv from './components/KoganExcelBackToCsv.vue'
-
+const sheet = import.meta.env.VITE_SHEET_TAB;
 const activeTab = ref('MyDeal')
 
 const tabs = [
@@ -15,6 +15,7 @@ const tabs = [
 
 <template>
   <div>
+    <h2 style="margin: 40px;">Sheet name is {{ sheet }}. Today is {{ new Date().toISOString().split('T')[0]}}</h2>
     <div style="">
       <button v-for="tab in tabs" :key="tab.value" @click="activeTab = tab.value" :style="{
         padding: '10px 20px',
@@ -29,7 +30,7 @@ const tabs = [
 
     <div v-if="activeTab === 'MyDeal'">
       <MyDealCsvToExcel />
-      <ExcelBackToCsv />
+      <MyDealExcelBackToCsv />
     </div>
 
 

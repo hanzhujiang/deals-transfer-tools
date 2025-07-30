@@ -1,19 +1,16 @@
 <template>
     <div>
-        <h2>回填发货信息到原始CSV</h2>
+        <h2>日控表Excel 转 CSV</h2>
+        <div>
+            <label>MyDeal导出的csv：</label>
+            <input type="file" accept=".csv" @change="handleCsvUpload" />
+                  <br /><br />
+        </div>
 
         <div>
-            <label>上传原始CSV：</label>
-            <input type="file" accept=".csv" @change="handleCsvUpload" />
-        </div>
-        <label>
-            日控表的 Sheet 名称：
-            <input v-model="markingSheetName" placeholder="" />
-        </label>
-        <br /><br />
-        <div>
-            <label>上传包含发货信息的Excel：</label>
+            <label>上传日控表：</label>
             <input type="file" accept=".xlsx" @change="handleExcelUpload" />
+                  <br /><br />
         </div>
 
         <button @click="mergeAndExport" :disabled="!csvData.length || !excelMap.size">
@@ -29,8 +26,8 @@ import * as XLSX from 'xlsx'
 const csvData = ref([])
 const excelMap = ref(new Map())
 const headers = ref([])
-const markingSheetName = ref('物控日报表 (2025年7月)')
 import { mydeal_couriers_map } from "../const/myDealConstants";
+const sheet_tab_name = import.meta.env.VITE_SHEET_TAB;
 
 function handleCsvUpload(e) {
     const file = e.target.files[0]
@@ -39,17 +36,7 @@ function handleCsvUpload(e) {
     const reader = new FileReader()
     reader.onload = () => {
         const workbook = XLSX.read(reader.result, { type: 'binary' })
-        const sheetName = markingSheetName.value.trim()
-        if (!sheetName) {
-            alert('请先填写 Sheet 名称')
-            return
-        }
-
-        const sheet = workbook.Sheets[sheetName]
-        if (!sheet) {
-            alert(`未找到名称为 "${sheetName}" 的 Sheet, 请检查拼写`)
-            return
-        }
+        const sheet = workbook.Sheets[workbook.SheetNames[0]]
         csvData.value = XLSX.utils.sheet_to_json(sheet, { defval: '' })
         headers.value = Object.keys(csvData.value[0] || {})
     }
@@ -63,7 +50,7 @@ function handleExcelUpload(e) {
     const reader = new FileReader()
     reader.onload = () => {
         const workbook = XLSX.read(reader.result, { type: 'binary' })
-        const sheet = workbook.Sheets['物控日报表 (2025年7月)'];
+        const sheet = workbook.Sheets[sheet_tab_name]; // 指定 sheet 名字
         const excelRows = XLSX.utils.sheet_to_json(sheet, {
             header: 1,       // 先读取为二维数组（每行一个数组）
             defval: '',
@@ -85,13 +72,10 @@ function handleExcelUpload(e) {
         excelMap.value.clear()
         formatted.forEach(row => {
             const orderNo = row['订单号']
-            console.log('orderNo', orderNo);
-
             const trackingCode = row['发货单号'] || ''
             const raw_courier = row['物流公司'] || ''
             const courier = mydeal_couriers_map[raw_courier]
-            if (orderNo && trackingCode) {
-                console.log('orderNo', orderNo);
+            if (orderNo&&trackingCode) {
                 excelMap.value.set(orderNo, { trackingCode, courier })
             }
         })
@@ -116,6 +100,6 @@ function mergeAndExport() {
     const ws = XLSX.utils.json_to_sheet(updated)
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, 'Updated CSV')
-    XLSX.writeFile(wb, 'updated_sample.csv')
+    XLSX.writeFile(wb, 'updated_mydeal_order_list.csv')
 }
 </script>

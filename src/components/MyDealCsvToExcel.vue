@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>MyDeal CSV to Excel 日控表</h2>
+    <h2>MyDeal CSV 转 Excel</h2>
 
     <!-- 上传 CSV 文件 -->
     <label>
@@ -9,12 +9,6 @@
       <br /><br />
     </label>
 
-
-    <label>
-      日控表的 Sheet 名称：
-      <input v-model="markingSheetName" placeholder="" />
-    </label>
-    <br /><br />
 
     <!-- 上传 标记 Excel 文件 -->
     <label>
@@ -47,11 +41,11 @@
 <script setup>
 import { ref } from 'vue'
 import * as XLSX from 'xlsx'
+const sheet_tab_name = import.meta.env.VITE_SHEET_TAB;
 
 const convertedData = ref([])
 const tableHeaders = ref([])
 const markedOrderNumbers = ref(new Set())
-const markingSheetName = ref('物控日报表 (2025年7月)') // 用户输入的 sheet 名
 
 // 上传 CSV 文件处理
 function handleFileUpload(e) {
@@ -106,8 +100,9 @@ function handleMarkingUpload(e) {
   const reader = new FileReader()
   reader.onload = () => {
     const workbook = XLSX.read(reader.result, { type: 'binary' })
-
-    const sheetName = markingSheetName.value.trim()
+    
+    
+    const sheetName = sheet_tab_name
     if (!sheetName) {
       alert('请先填写 Sheet 名称')
       return

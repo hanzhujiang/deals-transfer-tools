@@ -7,13 +7,9 @@
       <input type="file" accept=".csv" @change="handleSampleUpload" />
     </div>
 
-    <div>
-      <label>Excel 中 sheet 名称：</label>
-      <input v-model="sheetName" placeholder="例如：发货记录" />
-    </div>
 
     <div>
-      <label>上传 Excel 文件（包含“订单号”、“发货单号”、“CARRIER”）：</label>
+      <label>上传日控表：</label>
       <input type="file" accept=".xlsx, .xls" @change="handleExcelUpload" />
     </div>
 
@@ -27,6 +23,7 @@
 import { ref } from 'vue'
 import * as XLSX from 'xlsx'
 import { kogan_couriers_map } from "../const/koganConstants";
+const sheet_tab_name = import.meta.env.VITE_SHEET_TAB;
 
 const sheetName = ref('')
 const sampleData = ref([])
@@ -52,7 +49,7 @@ function handleExcelUpload(e) {
   const reader = new FileReader()
   reader.onload = () => {
     const workbook = XLSX.read(reader.result, { type: 'binary' })
-    const targetSheet = workbook.Sheets[sheetName.value.trim()]
+    const targetSheet = workbook.Sheets[sheet_tab_name]
     if (!targetSheet) {
       alert(`未找到 Sheet: ${sheetName.value}`)
       return
