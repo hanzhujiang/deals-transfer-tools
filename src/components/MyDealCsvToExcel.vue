@@ -77,7 +77,7 @@ function handleFileUpload(e) {
         'SKU': row['SKU'] || '',
         '名称': '',
         '数量': row['Quantity'] || '',
-        '价格': row['Total Sale Price'] || '',
+        '价格': Number(row['Price(Per Unit)'])*Number(row['Quantity']).toString() || '',
         '运费': row['Total Shipping'] || '',
         '地址': address,
         '联系人': row['Name'] || '',

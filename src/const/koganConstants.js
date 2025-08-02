@@ -8,7 +8,6 @@ export const kogan_couriers_map = {
   HUNTER:"HX",
 }
 
-
 export const kogan_weight_map = {
     "AXS-SMCC-1501": 22,
     "AXS-SMCC-1502": 24,

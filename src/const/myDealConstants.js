@@ -7,5 +7,6 @@ export const mydeal_couriers_map={
     AU_FASTWAY:'Fastway',
     LARGE:'Direct Freight Express',
     'Direct Freight Express':'Direct Freight Express',
+    DFE:'Direct Freight Express',
     HUNTER:'Hunter Express'
 }

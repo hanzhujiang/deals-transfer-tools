@@ -72,7 +72,7 @@ function handleExcelUpload(e) {
         excelMap.value.clear()
         formatted.forEach(row => {
             const orderNo = row['订单号']
-            const trackingCode = row['发货单号'] || ''
+            const trackingCode = row['发货单号'].toString().trim() || ''
             const raw_courier = row['物流公司'] || ''
             const courier = mydeal_couriers_map[raw_courier]
             if (orderNo&&trackingCode) {
