@@ -47,6 +47,13 @@ const convertedData = ref([])
 const tableHeaders = ref([])
 const markedOrderNumbers = ref(new Set())
 
+
+function excelSerialToDate(serial) {
+  const msPerDay = 24 * 60 * 60 * 1000
+  const excelEpoch = new Date(Date.UTC(1899, 11, 30)) // 注意：Excel起点是1900-01-00，但JS从1899-12-30起
+  const date = new Date(excelEpoch.getTime() + serial * msPerDay)
+  return date.toISOString().slice(0, 10) // 格式为 YYYY-MM-DD
+}
 // 上传 CSV 文件处理
 function handleFileUpload(e) {
   const file = e.target.files[0]
@@ -69,15 +76,16 @@ function handleFileUpload(e) {
 
       const orderNo = row['Order No'] || ''
       const isMarked = markedOrderNumbers.value.has(String(orderNo).trim())
+      const stringDate = excelSerialToDate(row['Purchased Date'])
 
       return {
         '销售平台': 'MyDeal',
-        '日期': row['Purchased Date'] || '',
+        '日期': stringDate || '',
         '订单号': orderNo,
         'SKU': row['SKU'] || '',
         '名称': '',
         '数量': row['Quantity'] || '',
-        '价格': Number(row['Price(Per Unit)'])*Number(row['Quantity']).toString() || '',
+        '价格': Number(row['Price(Per Unit)']) * Number(row['Quantity']).toString() || '',
         '运费': row['Total Shipping'] || '',
         '地址': address,
         '联系人': row['Name'] || '',
@@ -100,8 +108,6 @@ function handleMarkingUpload(e) {
   const reader = new FileReader()
   reader.onload = () => {
     const workbook = XLSX.read(reader.result, { type: 'binary' })
-    
-    
     const sheetName = sheet_tab_name
     if (!sheetName) {
       alert('请先填写 Sheet 名称')
@@ -150,6 +156,7 @@ function exportToExcel() {
   const worksheet = XLSX.utils.json_to_sheet(filteredData)
   const workbook = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
-  XLSX.writeFile(workbook, 'mydeal_orders.xlsx')
+  const randomSuffix = Math.floor(1000 + Math.random() * 9000) // 1000–9999
+  XLSX.writeFile(workbook, `mydeal_orders_${randomSuffix}.xlsx`)
 }
 </script>

@@ -84,6 +84,7 @@ function exportToExcel() {
     const worksheet = XLSX.utils.json_to_sheet(processedData.value)
     const workbook = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(workbook, worksheet, "KoganOrders")
-    XLSX.writeFile(workbook, "kogan_orders.xlsx")
+    const randomSuffix = Math.floor(1000 + Math.random() * 9000) // 1000–9999
+    XLSX.writeFile(workbook, "kogan_orders_${randomSuffix}.xlsx")
 }
 </script>
