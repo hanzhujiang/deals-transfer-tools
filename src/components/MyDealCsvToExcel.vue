@@ -76,7 +76,14 @@ function handleFileUpload(e) {
 
       const orderNo = row['Order No'] || ''
       const isMarked = markedOrderNumbers.value.has(String(orderNo).trim())
-      const stringDate = excelSerialToDate(row['Purchased Date'])
+
+      const stringDate = row['Purchased Date'] ? row['Purchased Date'].toString().trim() : ''
+      // try {
+      //    stringDate = excelSerialToDate(row['Purchased Date'])
+      // } catch (error) {
+      //    stringDate = row['Purchased Date']
+      // }
+      
 
       return {
         '销售平台': 'MyDeal',
