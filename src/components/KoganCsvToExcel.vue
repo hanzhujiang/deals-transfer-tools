@@ -4,7 +4,10 @@
         <label>上传 manifest.csv
             <input type="file" accept=".csv" @change="handleFileUpload" />
         </label>
-        <button @click="exportToExcel" :disabled="!processedData.length">导出 Excel</button>
+        <button @click="exportToExcel('SMCC')" :disabled="!processedData.length">导出 Excel SMCC</button>
+        <button @click="exportToExcel('ASTS')" :disabled="!processedData.length">导出 Excel ASTS</button>
+        <button @click="exportToExcel('AXS')" :disabled="!processedData.length">导出 Excel AXS</button>
+        <button @click="exportToExcel()" :disabled="!processedData.length">导出 Excel ALL</button>
     </div>
 </template>
 
@@ -80,7 +83,15 @@ function calculateShipping(productCode, postcode) {
     return 0
 }
 
-function exportToExcel() {
+function exportToExcel(skuPrefix = '') {
+
+    // to filter processedData based on skuPrefix
+    if (skuPrefix) {
+        processedData.value = processedData.value.filter(row => {
+            const sku = row['SKU'] || ''
+            return sku.toString().startsWith(skuPrefix)
+        })
+    }
     const worksheet = XLSX.utils.json_to_sheet(processedData.value)
     const workbook = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(workbook, worksheet, "KoganOrders")

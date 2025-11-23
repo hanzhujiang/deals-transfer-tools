@@ -19,7 +19,10 @@
 
 
     <!-- 导出按钮 -->
-    <button @click="exportToExcel" :disabled="!convertedData.length">导出 Excel</button>
+    <button @click="exportToExcel('SMCC')" :disabled="!convertedData.length">导出 Excel SMCC</button>
+    <button @click="exportToExcel('ASTS')" :disabled="!convertedData.length">导出 Excel ASTS</button>
+    <button @click="exportToExcel('AXS')" :disabled="!convertedData.length">导出 Excel AXS</button>
+    <button @click="exportToExcel()" :disabled="!convertedData.length">导出 Excel ALL</button>
 
     <!-- 显示表格 -->
     <table v-if="convertedData.length" border="1" style="margin-top: 20px; border-collapse: collapse;">
@@ -157,9 +160,18 @@ function handleMarkingUpload(e) {
   reader.readAsBinaryString(file)
 }
 
-// 导出 Excel（过滤删除线记录）
-function exportToExcel() {
-  const filteredData = convertedData.value.filter(row => !row.markedForExclusion)
+// 导出 Excel（过滤删除线记录和按SKU前缀筛选）
+function exportToExcel(skuPrefix = '') {
+  let filteredData = convertedData.value.filter(row => !row.markedForExclusion)
+  
+  // 如果提供了SKU前缀，则进一步筛选
+  if (skuPrefix) {
+    filteredData = filteredData.filter(row => {
+      const sku = row['SKU'] || ''
+      return sku.toString().startsWith(skuPrefix)
+    })
+  }
+  
   const worksheet = XLSX.utils.json_to_sheet(filteredData)
   const workbook = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
