@@ -1,5 +1,6 @@
 export const kogan_couriers_map = {
   R:'R',
+  AU_ALLIED: 'R',
   ALLIED:'R',
   LARGE:"DFE",
   DFE:"DFE",
