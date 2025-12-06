@@ -9,7 +9,7 @@
       <br /><br />
     </label>
 
-        <label>
+    <label>
       MyDeal导出的csv,for Australia Post
       <input type="file" accept=".csv" @change="handleFileUploadAuPost" />
       <br /><br />
@@ -93,7 +93,7 @@ function handleFileUpload(e) {
       // } catch (error) {
       //    stringDate = row['Purchased Date']
       // }
-      
+
 
       return {
         '销售平台': 'MyDeal',
@@ -170,7 +170,7 @@ function handleMarkingUpload(e) {
 // 导出 Excel（过滤删除线记录和按SKU前缀筛选）
 function exportToExcel(skuPrefix = '') {
   let filteredData = convertedData.value.filter(row => !row.markedForExclusion)
-  
+
   // 如果提供了SKU前缀，则进一步筛选
   if (skuPrefix) {
     filteredData = filteredData.filter(row => {
@@ -178,7 +178,24 @@ function exportToExcel(skuPrefix = '') {
       return sku.toString().startsWith(skuPrefix)
     })
   }
-  
+
+  // ✅ 只有当 skuPrefix === 'ASTS' 时，才自动补充 itemNum 和 importPrice
+  if (skuPrefix === 'ASTS') {
+    filteredData = filteredData.map(row => {
+      const sku = row['SKU'] || ''
+
+      const matched = itemNoPriceConstants.find(
+        item => item.sku === sku
+      )
+
+      return {
+        ...row,
+        itemNum: matched ? matched.itemNum : '',
+        importPrice: matched ? matched.importPrice : ''
+      }
+    })
+  }
+
   const worksheet = XLSX.utils.json_to_sheet(filteredData)
   const workbook = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')

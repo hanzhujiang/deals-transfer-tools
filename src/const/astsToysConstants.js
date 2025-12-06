@@ -1,20 +1,20 @@
 export const stateMap = {
-  'New South Wales': 'NSW',
-  'Victoria': 'VIC',
-  'Queensland': 'QLD',
-  'South Australia': 'SA',
-  'Western Australia': 'WA',
-  'Tasmania': 'TAS',
-  'Northern Territory': 'NT',
-  'Australian Capital Territory': 'ACT',
-  'NSW': 'NSW',
-  'VIC': 'VIC',
-  'QLD': 'QLD',
-  'SA': 'SA',
-  'WA': 'WA',
-  'TAS': 'TAS',
-  'NT': 'NT',
-  'ACT': 'ACT'
+    'New South Wales': 'NSW',
+    'Victoria': 'VIC',
+    'Queensland': 'QLD',
+    'South Australia': 'SA',
+    'Western Australia': 'WA',
+    'Tasmania': 'TAS',
+    'Northern Territory': 'NT',
+    'Australian Capital Territory': 'ACT',
+    'NSW': 'NSW',
+    'VIC': 'VIC',
+    'QLD': 'QLD',
+    'SA': 'SA',
+    'WA': 'WA',
+    'TAS': 'TAS',
+    'NT': 'NT',
+    'ACT': 'ACT'
 }
 
 
@@ -231,7 +231,7 @@ export const itemNoPriceConstants = [
     },
     {
         sku: 'ASTS-1131',
-         size: '26,12,10',
+        size: '26,12,10',
         weight: '0.5',
         itemNum: '23280536',
         importPrice: '7'
@@ -318,6 +318,48 @@ export const itemNoPriceConstants = [
         size: '39,17,6',
         weight: '0.5',
         itemNum: '23309260',
+        importPrice: '25'
+    }, {
+        sku: 'ASTS-1144',
+        size: '72,21,6',
+        weight: '0.5',
+        itemNum: '23269035',
+        importPrice: '25'
+    }, {
+        sku: 'ASTS-1145',
+        size: '32,32,6',
+        weight: '0.5',
+        itemNum: 'TG2255700',
+        importPrice: '25'
+    }, {
+        sku: 'ASTS-1146',
+        size: '32,18,4',
+        weight: '0.5',
+        itemNum: '23303090',
+        importPrice: '25'
+    }, {
+        sku: 'ASTS-1147',
+        size: '28,20,13',
+        weight: '0.5',
+        itemNum: '23303166',
+        importPrice: '25'
+    }, {
+        sku: 'ASTS-1148',
+        size: '28,20,13',
+        weight: '0.5',
+        itemNum: '23303167',
+        importPrice: '25'
+    }, {
+        sku: 'ASTS-1149',
+        size: '60,17,4',
+        weight: '0.5',
+        itemNum: '23303415',
+        importPrice: '25'
+    }, {
+        sku: 'ASTS-1150',
+        size: '27,25,7',
+        weight: '0.5',
+        itemNum: '23303523',
         importPrice: '25'
     }
 ]
