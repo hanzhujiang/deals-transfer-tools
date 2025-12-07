@@ -6,7 +6,7 @@
         </label>
         <button @click="exportToExcel('SMCC')" :disabled="!processedData.length">导出 Excel SMCC</button>
         <button @click="exportToExcel('ASTS')" :disabled="!processedData.length">导出 Excel ASTS</button>
-        <button @click="exportToExcel('AXS')" :disabled="!processedData.length">导出 Excel AXS</button>
+        <button @click="exportToExcel('AXH')" :disabled="!processedData.length">导出 Excel AXH</button>
         <button @click="exportToExcel()" :disabled="!processedData.length">导出 Excel ALL</button>
 
 

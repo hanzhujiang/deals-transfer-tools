@@ -37,14 +37,14 @@ export const itemNoPriceConstants = [
         sku: 'ASTS-1103',
         size: '36,25,9',
         weight: '0.5',
-        itemNum: '23309258',
+        itemNum: '23309258red',
         importPrice: '22.5'
     },
     {
         sku: 'ASTS-1104',
         size: '36,25,9',
         weight: '0.5',
-        itemNum: '23309258',
+        itemNum: '23309258blue',
         importPrice: '22.5'
     },
     {
@@ -58,7 +58,7 @@ export const itemNoPriceConstants = [
         sku: 'ASTS-1106',
         size: '39,17,6',
         weight: '0.5',
-        itemNum: '23309260',
+        itemNum: '23309260blue',
         importPrice: '25'
     },
     {
@@ -135,28 +135,28 @@ export const itemNoPriceConstants = [
         sku: 'ASTS-1117',
         size: '21,12,11',
         weight: '0.5',
-        itemNum: 'TG2251157',
+        itemNum: 'TG2251157grey',
         importPrice: '7.5'
     },
     {
         sku: 'ASTS-1118',
         size: '21,12,11',
         weight: '0.5',
-        itemNum: 'TG2251157',
+        itemNum: 'TG2251157blue',
         importPrice: '7.5'
     },
     {
         sku: 'ASTS-1119',
         size: '24,18,14',
         weight: '0.5',
-        itemNum: 'TG2228286',
+        itemNum: 'TG2228286blue',
         importPrice: '10'
     },
     {
         sku: 'ASTS-1120',
         size: '24,18,14',
         weight: '0.5',
-        itemNum: 'TG2228286',
+        itemNum: 'TG2228286yellow',
         importPrice: '10'
     },
     {
@@ -268,14 +268,14 @@ export const itemNoPriceConstants = [
         sku: 'ASTS-1136',
         size: '18,18,8',
         weight: '0.5',
-        itemNum: '23303039',
+        itemNum: '23303039yellow',
         importPrice: '5'
     },
     {
         sku: 'ASTS-1137',
         size: '18,18,8',
         weight: '0.5',
-        itemNum: '23303039',
+        itemNum: '23303039pink',
         importPrice: '5'
     },
     {
@@ -310,14 +310,14 @@ export const itemNoPriceConstants = [
         sku: 'ASTS-1142',
         size: '39,17,6',
         weight: '0.5',
-        itemNum: '23309260',
+        itemNum: '23309260grey',
         importPrice: '25'
     },
     {
         sku: 'ASTS-1143',
         size: '39,17,6',
         weight: '0.5',
-        itemNum: '23309260',
+        itemNum: '23309260green',
         importPrice: '25'
     }, {
         sku: 'ASTS-1144',
