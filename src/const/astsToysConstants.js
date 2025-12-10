@@ -59,7 +59,7 @@ export const itemNoPriceConstants = [
         size: '39,17,6',
         weight: '0.5',
         itemNum: '23309260blue',
-        importPrice: '25'
+        importPrice: '20'
     },
     {
         sku: 'ASTS-1107',
@@ -311,38 +311,38 @@ export const itemNoPriceConstants = [
         size: '39,17,6',
         weight: '0.5',
         itemNum: '23309260grey',
-        importPrice: '25'
+        importPrice: '20'
     },
     {
         sku: 'ASTS-1143',
         size: '39,17,6',
         weight: '0.5',
         itemNum: '23309260green',
-        importPrice: '25'
+        importPrice: '20'
     }, {
         sku: 'ASTS-1144',
         size: '72,21,6',
         weight: '0.5',
         itemNum: '23269035',
-        importPrice: '25'
+        importPrice: '6.5'
     }, {
         sku: 'ASTS-1145',
         size: '32,32,6',
         weight: '0.5',
         itemNum: 'TG2255700',
-        importPrice: '25'
+        importPrice: '5'
     }, {
         sku: 'ASTS-1146',
         size: '32,18,4',
         weight: '0.5',
         itemNum: '23303090',
-        importPrice: '25'
+        importPrice: '3'
     }, {
         sku: 'ASTS-1147',
         size: '28,20,13',
         weight: '0.5',
         itemNum: '23303166',
-        importPrice: '25'
+        importPrice: '6.5'
     }, {
         sku: 'ASTS-1148',
         size: '28,20,13',
