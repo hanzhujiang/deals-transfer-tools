@@ -348,19 +348,19 @@ export const itemNoPriceConstants = [
         size: '28,20,13',
         weight: '0.5',
         itemNum: '23303167',
-        importPrice: '25'
+        importPrice: '6.5'
     }, {
         sku: 'ASTS-1149',
         size: '60,17,4',
         weight: '0.5',
         itemNum: '23303415',
-        importPrice: '25'
+        importPrice: '3.5'
     }, {
         sku: 'ASTS-1150',
         size: '27,25,7',
         weight: '0.5',
         itemNum: '23303523',
-        importPrice: '25'
+        importPrice: '5'
     }, {
         sku: 'ASTS-1151',
         size: '28,20,13',
