@@ -409,5 +409,17 @@ export const itemNoPriceConstants = [
         weight: '0.5',
         itemNum: '23303589',
         importPrice: '5'
+    }, {
+        sku: 'ASTS-1160',
+        size: '50,20,5.5',
+        weight: '0.5',
+        itemNum: '23311375Red',
+        importPrice: '17.5'
+    }, {
+        sku: 'ASTS-1161',
+        size: '50,20,5.5',
+        weight: '0.5',
+        itemNum: '23311375Green',
+        importPrice: '17.5'
     }
 ]
