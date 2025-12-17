@@ -266,10 +266,10 @@ const handleFileUploadAuPost = (e) => {
       return {
         // ✅ 固定发件人
         'Send From Name': 'Alan',
-        'Send From Address Line 1': '1 AMOR ST',
-        'Send From Suburb': 'ASQUITH',
+        'Send From Address Line 1': '1/191 McCredie Rd',
+        'Send From Suburb': 'Smithfield',
         'Send From State': 'NSW',
-        'Send From Postcode': '2077',
+        'Send From Postcode': '2164',
         'Send From Phone Number': '0427116928',
 
         // ✅ 收件人（来自 mydeal1）
