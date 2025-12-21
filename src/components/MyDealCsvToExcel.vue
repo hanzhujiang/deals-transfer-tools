@@ -238,6 +238,9 @@ const handleFileUploadAuPost = (e) => {
 
     // ✅ 转成 JSON（mydeal1 源数据）并且只保存 ASTS 开头的 SKU
     const mydealData = XLSX.utils.sheet_to_json(worksheet).filter(row => row.SKU && row.SKU.toUpperCase().startsWith('ASTS'))
+    debugger
+    console.log('mydealData',mydealData);
+    
 
     const aupostData = mydealData.map(row => {
       const sku = row.SKU?.trim()
@@ -275,6 +278,7 @@ const handleFileUploadAuPost = (e) => {
         // ✅ 收件人（来自 mydeal1）
         'Deliver To Name': row.Name,
         'Deliver To Address Line 1': row.Address,
+        'Deliver To Address Line 2': row['Address 2'] || '',
         'Deliver To Suburb': row.Suburb,
         'Deliver To State': formatState(row.State),
         'Deliver To Postcode': row.Postcode,

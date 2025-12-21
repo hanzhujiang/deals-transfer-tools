@@ -67,6 +67,22 @@ function handleFileUpload(event) {
     reader.readAsBinaryString(file)
 }
 
+function exportToCsvByXlsx(data, filename) {
+  const worksheet = XLSX.utils.json_to_sheet(data)
+  const workbook = XLSX.utils.book_new()
+
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Aupost')
+
+  XLSX.writeFile(workbook, filename, {
+    bookType: 'csv',
+    type: 'array'
+  })
+}
+
+function formatState(state) {
+  return stateMap[state?.trim()] || state
+}
+
 function calculateShipping(productCode, postcode) {
     const postcodeRanges = []
     for (const rule of shippingRules) {
@@ -127,82 +143,133 @@ function exportToExcel(skuPrefix = '') {
 }
 
 const handleFileUploadAuPost = (e) => {
+  const file = e.target.files?.[0]
+  if (!file) return
 
-    // TODO: Implement Australia Post CSV handling similar to MyDealCsvToExcel.vue
-//   const file = e.target.files[0]
-//   if (!file) return
+  const reader = new FileReader()
 
-//   const reader = new FileReader()
+  // ✅ 从各种字段里取值（兼容不同 CSV/Excel 表头）
+  const pick = (row, keys, def = '') => {
+    for (const k of keys) {
+      const v = row?.[k]
+      if (v !== undefined && v !== null && String(v).trim() !== '') return v
+    }
+    return def
+  }
 
-//   reader.onload = (evt) => {
-//     const data = new Uint8Array(evt.target.result)
+  // ✅ 把 ProductCode 变成你常用的 sku：如 "AXS-ASTS-1168" -> "ASTS-1168"
+  const normaliseSku = (raw) => {
+    const s = String(raw || '').trim().toUpperCase()
+    if (!s) return ''
+    const idx = s.indexOf('ASTS')
+    if (idx >= 0) return s.slice(idx) // 从 ASTS 开始截取
+    return s
+  }
 
-//     // ✅ 读取 CSV / Excel
-//     const workbook = XLSX.read(data, { type: 'array' })
-//     const sheetName = workbook.SheetNames[0]
-//     const worksheet = workbook.Sheets[sheetName]
+  // ✅ 澳洲手机号格式兜底：把纯数字转字符串 + 补 0
+  const formatPhoneAU = (raw) => {
+    if (raw === undefined || raw === null) return ''
+    let s = String(raw).trim()
+    // 如果是科学计数/小数这种，先转整数
+    if (/^\d+(\.\d+)?$/.test(s)) s = String(Math.trunc(Number(s)))
+    // 常见：9位且不以0开头 -> 补0
+    if (/^\d{9}$/.test(s) && !s.startsWith('0')) s = '0' + s
+    return s
+  }
 
-//     // ✅ 转成 JSON（mydeal1 源数据）并且只保存 ASTS 开头的 SKU
-//     const mydealData = XLSX.utils.sheet_to_json(worksheet).filter(row => row.SKU && row.SKU.toUpperCase().startsWith('ASTS'))
+  reader.onload = (evt) => {
+    const data = new Uint8Array(evt.target.result)
 
-//     const aupostData = mydealData.map(row => {
-//       const sku = row.SKU?.trim()
+    // ✅ 读取 CSV / Excel
+    const workbook = XLSX.read(data, { type: 'array' })
+    const sheetName = workbook.SheetNames[0]
+    const worksheet = workbook.Sheets[sheetName]
 
-//       // ✅ 匹配 SKU 尺寸 & 重量
-//       const matchedItem = itemNoPriceConstants.find(
-//         item => item.sku === sku
-//       )
+    // ✅ 转 JSON（支持空值）
+    const sourceData = XLSX.utils.sheet_to_json(worksheet, { defval: '' })
 
-//       let length = ''
-//       let width = ''
-//       let height = ''
-//       let weight = ''
+    // ✅ 只保留 ASTS 的行：SKU 或 ProductCode 任意命中
+    const filtered = sourceData.filter((row) => {
+      const rawSku = pick(row, ['SKU', 'Sku', 'sku', 'ProductCode', 'Product Code', 'productCode'])
+      const sku = normaliseSku(rawSku)
+      return sku && sku.startsWith('ASTS')
+    })
 
-//       if (matchedItem?.size) {
-//         const [l, w, h] = matchedItem.size.split(',')
-//         length = l
-//         width = w
-//         height = h
-//       }
+    // ✅ 生成澳邮模板数据（并按 Quantity 展开）
+    debugger;
+    const aupostData = filtered.flatMap((row) => {
+      const rawSku = pick(row, ['SKU', 'Sku', 'sku', 'ProductCode', 'Product Code', 'productCode'])
+      const sku = normaliseSku(rawSku)
+         debugger;
+      const qty = Number(pick(row, ['Quantity', 'Qty', 'quantity'], 1)) || 1
+        debugger;
+      // ✅ 匹配 SKU 尺寸 & 重量（你的常量表）
+      const matchedItem = itemNoPriceConstants.find(
+        (item) => String(item.sku || '').trim().toUpperCase() === sku
+      )
 
-//       if (matchedItem?.weight) {
-//         weight = matchedItem.weight
-//       }
+      let length = ''
+      let width = ''
+      let height = ''
+      let weight = ''
 
-//       return {
-//         // ✅ 固定发件人
-//         'Send From Name': 'Alan',
-//         'Send From Address Line 1': '1 AMOR ST',
-//         'Send From Suburb': 'ASQUITH',
-//         'Send From State': 'NSW',
-//         'Send From Postcode': '2077',
-//         'Send From Phone Number': '0427116928',
+      if (matchedItem?.size) {
+        const [l, w, h] = String(matchedItem.size).split(',').map(s => String(s).trim())
+        length = l || ''
+        width = w || ''
+        height = h || ''
+      }
 
-//         // ✅ 收件人（来自 mydeal1）
-//         'Deliver To Name': row.Name,
-//         'Deliver To Address Line 1': row.Address,
-//         'Deliver To Suburb': row.Suburb,
-//         'Deliver To State': formatState(row.State),
-//         'Deliver To Postcode': row.Postcode,
-//         'Deliver To Phone Number': row.Phone,
+      if (matchedItem?.weight !== undefined && matchedItem?.weight !== null) {
+        weight = String(matchedItem.weight).trim()
+      }
 
-//         // ✅ 物品信息
-//         'Item Description': sku,
-//         'Item Packaging Type': 'OWN_PACKAGING',
-//         'Item Delivery Service': 'PP',
+      const deliverName = pick(row, ['DeliveryName', 'Name', 'Customer Name', 'Receiver Name'])
+      const addr1 = pick(row, ['DeliveryAddress1', 'Address', 'Delivery Address 1', 'Address Line 1'])
+      const addr2 = pick(row, ['DeliveryAddress2', 'Address 2', 'Delivery Address 2', 'Address Line 2'], '')
+      const suburb = pick(row, ['DeliverySuburb', 'Suburb', 'City'])
+      const state = pick(row, ['DeliveryState', 'State'])
+      const postcode = pick(row, ['DeliveryPostCode', 'DeliveryPostcode', 'Postcode', 'Postal Code'])
+      const phone = formatPhoneAU(pick(row, ['DeliveryPhone', 'Phone', 'Phone Number', 'Mobile']))
 
-//         // ✅ 尺寸 & 重量
-//         'Item Length': length,
-//         'Item Width': width,
-//         'Item Height': height,
-//         'Item Weight': weight
-//       }
-//     })
+      // ✅ 1个数量 -> 1行；数量>1 -> 多行
+      return Array.from({ length: qty }, () => ({
+        // ✅ 固定发件人
+        'Send From Name': 'Alan',
+        'Send From Address Line 1': '1/191 McCredie Rd',
+        'Send From Suburb': 'Smithfield',
+        'Send From State': 'NSW',
+        'Send From Postcode': '2164',
+        'Send From Phone Number': '0427116928',
 
-//     // ✅ 导出为 CSV（Australia Post 模板）
-//     exportToCsvByXlsx(aupostData, 'aupost_output.csv')
-//   }
+        // ✅ 收件人（新 CSV 格式）
+        'Deliver To Name': deliverName,
+        'Deliver To Address Line 1': addr1,
+        'Deliver To Address Line 2': addr2,
+        'Deliver To Suburb': suburb,
+        'Deliver To State': formatState(state),
+        'Deliver To Postcode': String(postcode).trim(),
+        'Deliver To Phone Number': phone,
 
-//   reader.readAsArrayBuffer(file)
+        // ✅ 物品信息
+        'Item Description': sku,
+        'Item Packaging Type': 'OWN_PACKAGING',
+        'Item Delivery Service': 'PP',
+
+        // ✅ 尺寸 & 重量
+        'Item Length': length,
+        'Item Width': width,
+        'Item Height': height,
+        'Item Weight': weight
+      }))
+    })
+
+    console.log('aupostData',aupostData);
+
+    exportToCsvByXlsx(aupostData, 'aupost_output.csv')
+  }
+
+  reader.readAsArrayBuffer(file)
 }
+
 </script>

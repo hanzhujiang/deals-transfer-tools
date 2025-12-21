@@ -22,7 +22,8 @@ const tabs = [
         border: '1px solid #ccc',
         borderBottom: activeTab === tab.value ? '3px solid #007BFF' : '1px solid #ccc',
         backgroundColor: activeTab === tab.value ? '#eef6ff' : '#fff',
-        cursor: 'pointer'
+        cursor: 'pointer',
+        margin: '20px'
       }">
         {{ tab.name }}
       </button>
